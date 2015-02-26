@@ -1,0 +1,6 @@
+E:\James\Dropbox\Programming\C#\bfInterpreter\bfInterpreter\bin\Debug\bfInterpreter.exe.config
+E:\James\Dropbox\Programming\C#\bfInterpreter\bfInterpreter\obj\Debug\bfInterpreter.csprojResolveAssemblyReference.cache
+E:\James\Dropbox\Programming\C#\bfInterpreter\bfInterpreter\bin\Debug\bfInterpreter.exe
+E:\James\Dropbox\Programming\C#\bfInterpreter\bfInterpreter\bin\Debug\bfInterpreter.pdb
+E:\James\Dropbox\Programming\C#\bfInterpreter\bfInterpreter\obj\Debug\bfInterpreter.exe
+E:\James\Dropbox\Programming\C#\bfInterpreter\bfInterpreter\obj\Debug\bfInterpreter.pdb
