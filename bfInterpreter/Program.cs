@@ -27,12 +27,10 @@ namespace bfInterpreter
     {
         int programPointer = 0;
 
-        int[] cells = new int[30000];
+        int[] cells = new int[50000];
         int cellPointer;
 
         string program;
-
-        Stack bracketStack = new Stack(100);
         Dictionary<int, int> bracketMatching = new Dictionary<int, int>();
 
         public Interpreter(string Program)
@@ -75,7 +73,12 @@ namespace bfInterpreter
                 cells[cellPointer] -= 1;
             }
             else if (command == '[')
-            {}
+            {
+                if(cells[cellPointer] == 0)
+                {
+                    programPointer = bracketMatching.FirstOrDefault(x => x.Value == programPointer).Key;
+                }
+            }
             else if (command == ']')
             {
                 if(cells[cellPointer] > 0)
@@ -89,7 +92,7 @@ namespace bfInterpreter
         public Dictionary<int, int> MatchBrackets(string program)
         {
             Dictionary<int, int> bracketMatching = new Dictionary<int, int>();
-            Stack bracketStack = new Stack(30);
+            Stack bracketStack = new Stack(300);
             for(int i = 0; i < program.Length; i++)
             {
                 if(program[i] == '[')
@@ -137,9 +140,10 @@ namespace bfInterpreter
         public Stack(int StackSize)
         {
             this.stackSize = StackSize;
-            stack = new object[StackSize];
+            stack = new object[stackSize];
         }
 
+        // Pops the next item off the stack
         public object Pop()
         {
             if (pointer == 0)
@@ -153,12 +157,14 @@ namespace bfInterpreter
             return item;
         }
 
+        // Pushes an item on to the stack
         public void Push(object item)
         {
             stack[pointer] = item;
             pointer += 1;
         }
 
+        // Returns wether the stack can pop an item
         public bool CanPop()
         {
             if (stack.Count() > 0)
