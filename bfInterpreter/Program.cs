@@ -11,6 +11,7 @@ namespace bfInterpreter
     {
         static void Main(string[] args)
         {
+            Console.WriteLine("Please enter the path of the program to run.");
             string path = Console.ReadLine();
             StreamReader streamReader = new StreamReader(path);
             string program = streamReader.ReadToEnd();
@@ -27,7 +28,7 @@ namespace bfInterpreter
     {
         int programPointer = 0;
 
-        int[] cells = new int[50000];
+        int[] cells = new int[30000];
         int cellPointer;
 
         string program;
@@ -45,18 +46,22 @@ namespace bfInterpreter
         /// <param name="command">The command at the position of the program pointer</param>
         void ExcecuteCommand(char command)
         {
+            // Move the cell pointer one position to the right
             if (command == '>')
             {
                 cellPointer += 1;
             }
+            // Move the cell pointer one position to the left
             else if (command == '<')
             {
                 cellPointer -= 1;
             }
+            // Print the ASCII representation of the number under the cell pointer
             else if (command == '.')
             {
-                Console.Write((char)cells[cellPointer]);
+                Console.WriteLine((char)cells[cellPointer]);
             }
+            // Take one byte of input and put it under the cell pointer
             else if (command == ',')
             {
                 Console.Write("Please input one character : ");
@@ -64,57 +69,87 @@ namespace bfInterpreter
                 char character = input[0];
                 cells[cellPointer] = (int)character;
             }
+            // Increment the number under the cell pointer by one
             else if (command == '+')
             {
                 cells[cellPointer] += 1;
             }
+            // Decrement the number under the cell pointer by one
             else if (command == '-')
             {
                 cells[cellPointer] -= 1;
             }
+            // If the data under the cell pointer is currently 0, jumps to the instruction after the next ']'
             else if (command == '[')
             {
-                if(cells[cellPointer] == 0)
+                if (cells[cellPointer] == 0)
                 {
                     programPointer = bracketMatching.FirstOrDefault(x => x.Value == programPointer).Key;
                 }
             }
+            // If the data under the cell pointer is not currently 0, jumps back to the matching '['
             else if (command == ']')
             {
-                if(cells[cellPointer] > 0)
+                if (cells[cellPointer] > 0)
                 {
                     programPointer = bracketMatching[programPointer];
                 }
             }
             programPointer += 1;
         }
-        
+
+        /// <summary>
+        /// Creates a dictionary of matching brackets
+        /// </summary>
+        /// <param name="program">The brainfuck program</param>
+        /// <returns>A dictionary of matching brackets (']','[')</returns>
         public Dictionary<int, int> MatchBrackets(string program)
         {
-            Dictionary<int, int> bracketMatching = new Dictionary<int, int>();
-            Stack bracketStack = new Stack(300);
-            for(int i = 0; i < program.Length; i++)
+            // Count the max amount of brackets the program can have, so we
+            // can make a stack of the appropriate size
+            int bracketCount = 0;
+            foreach (char command in program)
             {
-                if(program[i] == '[')
+                if (command == ']')
                 {
-                    bracketStack.Push(i);
+                    bracketCount += 1;
                 }
-                else if(program[i] == ']')
+            }
+
+            Dictionary<int, int> bracketMatching = new Dictionary<int, int>();
+            Stack bracketStack = new Stack(bracketCount);
+
+            try
+            {
+                for (int i = 0; i < program.Length; i++)
                 {
-                    try
+                    // Push the positions of any '[' onto the stack
+                    if (program[i] == '[')
+                    {
+                        bracketStack.Push(i);
+                    }
+                    // Pop the matching '[' position off the stack, and add it to the dictionary
+                    else if (program[i] == ']')
                     {
                         int leftBracketPos = (int)bracketStack.Pop();
                         bracketMatching.Add(i, leftBracketPos);
                     }
-                    catch(StackEmptyException ex)
-                    {
-                        Console.WriteLine(ex.Message + "  Invalid Bracketing");
-                    }
-                    
                 }
-            }
 
-            return bracketMatching;
+                return bracketMatching;
+            }
+            // Too many '[' in the brainf*ck program
+            catch (StackOverflowException ex)
+            {
+                Console.WriteLine("Invalid bracketing. Program has unmatch '['" + ex.Message);
+                return null;
+            }
+            // Too many ']' in the brainf*ck program
+            catch (StackEmptyException ex)
+            {
+                Console.WriteLine("Invalid bracketing. Program has unmatched ']'" + ex.Message);
+                return null;
+            }
         }
 
         public void Run()
@@ -146,6 +181,7 @@ namespace bfInterpreter
         // Pops the next item off the stack
         public object Pop()
         {
+            // Throw exception if the stack is empty
             if (pointer == 0)
             {
                 throw new StackEmptyException("Cannot pop, stack is empty");
@@ -160,11 +196,17 @@ namespace bfInterpreter
         // Pushes an item on to the stack
         public void Push(object item)
         {
+            // Throw error if the stack is full
+            if (stack[stackSize - 1] != null)
+            {
+                throw new StackOverflowException("Stack full");
+            }
+
             stack[pointer] = item;
             pointer += 1;
         }
 
-        // Returns wether the stack can pop an item
+        // Returns whether the stack can pop an item
         public bool CanPop()
         {
             if (stack.Count() > 0)
